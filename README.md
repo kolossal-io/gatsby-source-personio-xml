@@ -74,3 +74,45 @@ allPersonioDepartment {
   }
 }
 ```
+
+
+## Adding custom fields
+
+Personio allows you to define custom fields which are not mapped automatically. For these occasions you 
+can customize the XML parsing and GraphQL mapping via the following configuration options: 
+
+```js
+module.exports = {
+  plugins: [
+    {
+      resolve: `gatsby-source-personio-xml`,
+      options: {
+        url: `https://{username}.jobs.personio.de/xml`,
+        cusomizeXmlMapping: (newNode, xmlNode) => {
+          const createdAt = select("string(createdAt)", xmlNode)
+          return { ...newNode, createdAt, keywords }
+        },
+        customizeNodeMapping: (gatsbyNode, originalMappedItem) => {
+          return {
+            ...gatsbyNode,
+            createdAt: originalMappedItem.createdAt,
+          }
+        },
+      },
+    },
+  ],
+};
+```
+
+In addition you will want to define your own Graphql Schema Mapping in your own `gatsby-node.js`:
+
+```js
+exports.createSchemaCustomization = ({ actions }) => {
+  const { createTypes } = actions
+
+  createTypes(`
+    type PersonioPosition implements Node {
+      createdAt: Date
+    }
+    `)
+```
