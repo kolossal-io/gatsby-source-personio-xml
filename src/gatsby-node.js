@@ -35,7 +35,10 @@ exports.createSchemaCustomization = ({ actions: { createTypes } }) => {
   `);
 };
 
-exports.sourceNodes = async (props, { url, cusomizeXmlMapping, customizeNodeMapping }) => {
+exports.sourceNodes = async (
+  props,
+  { url, cusomizeXmlMapping, customizeNodeMapping },
+) => {
   const {
     actions: { createNode },
     createContentDigest,
