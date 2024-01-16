@@ -35,7 +35,7 @@ exports.createSchemaCustomization = ({ actions: { createTypes } }) => {
   `);
 };
 
-exports.sourceNodes = async (props, { url }) => {
+exports.sourceNodes = async (props, { url, cusomizeXmlMapping, customizeNodeMapping }) => {
   const {
     actions: { createNode },
     createContentDigest,
@@ -53,7 +53,7 @@ exports.sourceNodes = async (props, { url }) => {
     .then((response) => {
       console.info(`Received Personio XML`);
 
-      const data = readJobsFromXml(response.data);
+      const data = readJobsFromXml(response.data, cusomizeXmlMapping);
 
       data.forEach((item) => {
         createNode({
@@ -84,7 +84,7 @@ exports.sourceNodes = async (props, { url }) => {
           },
         });
 
-        createNode({
+        const newNode = {
           id: createNodeId(`personio-position-${item.id}`),
           positionId: item.id,
           subcompany: item.subcompany,
@@ -108,7 +108,9 @@ exports.sourceNodes = async (props, { url }) => {
             content: JSON.stringify(item),
             contentDigest: createContentDigest(item),
           },
-        });
+        };
+        const convertedNode = customizeNodeMapping?.(newNode, item) ?? newNode;
+        createNode(convertedNode);
       });
     })
     .catch(() => console.error(`Fetching the Personio XML failed`));
@@ -116,11 +118,11 @@ exports.sourceNodes = async (props, { url }) => {
   return;
 };
 
-const readJobsFromXml = (xml) => {
+const readJobsFromXml = (xml, cusomizeXmlMapping) => {
   const doc = new DOMParser().parseFromString(xml, 'application/xml');
 
   return select('//position', doc).map((node) => {
-    return {
+    const newNode = {
       id: select('number(id)', node),
       subcompany: optional(select('string(subcompany)', node)),
       office: select('string(office)', node),
@@ -140,6 +142,8 @@ const readJobsFromXml = (xml) => {
         },
       ),
     };
+
+    return cusomizeXmlMapping?.(newNode, node) ?? newNode;
   });
 };
 
