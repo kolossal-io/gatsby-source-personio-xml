@@ -20,9 +20,9 @@
   "author": "Marijan Barkic <marijan@kolossal.io>",
   "license": "MIT",
   "dependencies": {
-    "@xmldom/xmldom": "^0.7.5",
+    "@xmldom/xmldom": "<1.0.0",
     "axios": "^1.6.5",
-    "xpath": "^0.0.32"
+    "xpath": "<1.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.15.7",
